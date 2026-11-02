@@ -19,7 +19,7 @@ SMA把有限的微调时间分配给更值得学习的示范片段。它使用�
 ```bash
 git clone https://github.com/diggerslab/Structural-Manifold-Adaptation.git
 cd Structural-Manifold-Adaptation
-python -m pip install -e .
+python -m pip install -e '.[test]'
 python -m sma.demo --output demo-output
 python -m unittest discover -s tests -v
 ```
@@ -36,7 +36,11 @@ python -m unittest discover -s tests -v
 
 ## 接入边界
 
-仓库包含算法内核、输入规范、示例、测试与原代码数值对照；不包含模型权重、实验数据、仿真服务或完整π0.5训练环境。真实训练时需要提供冻结特征、原生训练函数和逐窗残差。多卡时全局只抽样一次，分发到各卡，再按原顺序汇总反馈。
+仓库现已包含 [π0.5模型接入、普通微调、SMA微调与评测代码](integrations/pi05/README.md)。通过固定提交的官方OpenPI加载模型，保留真实训练中的原生损失、四卡FSDP、每分钟残差探测、预取队列和计时方式；Baseline与SMA共用已选定的2.5e-5峰值学习率。
+
+**S2是实验内部版本代号，不是正式英文缩写。** 它在结构方案S上修正覆盖参考分布，使其包含强制均匀采样的一半。对外名称统一为SMA，代码保留S2标识用于追溯实验。
+
+模型权重、示范数据和定制3×10场景资产单独提供，本仓库未打包这些资源。公开训练代码来自实际运行版本；本次移植完成CPU与源码契约测试，尚未在干净GPU环境重跑整套训练评测。评测代码包含模型服务、并发仿真窗口和逐场景任务汇总；并发窗口不等于模型张量合批，原生推理仍为B1。
 
 当前参考状态为8维、动作为7维，详细字段见接入文档。扩展到其他本体时需要明确修改字段映射，不能直接把不同控制语义拼在一起。
 

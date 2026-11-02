@@ -1,0 +1,34 @@
+{
+  "source": "Executed research Pi0.5 adapter snapshot",
+  "sha256": {
+    "adapters\\adaptive_pi_runtime.py": "f87ff32b987b43c35b725d2ce8deba2f7add8a98625a2c7cdb2e664546eec24a",
+    "adapters\\adaptive_windows.py": "bc25fd907113dbe300fd86abd3bb0f4fa5c5455be6240c484071dbc2c93db7fa",
+    "adapters\\balanced_windows.py": "03588dbf9b6ae9b04bd186b594562f3fa26f66811b00bb83ab21618fc4f74b2c",
+    "adapters\\consumption.py": "1925f6fb3843f44a19ea0fcbfff317b15742e897979681550cd6bebdcdec9f48",
+    "adapters\\fit_clock.py": "8328e665f3c6ae4aa99475d2d979151c389e39a7743888b9e17926f19d3bd907",
+    "adapters\\hdf5_data.py": "3a07a2ff72441dfba1a64cee707579fae987fa1b2d14a90806b929f386b7fe35",
+    "adapters\\pi05_data.py": "5fcfbfddd48f1ddd949c1660e57a784abea6ee18630c3abd5d73fd7f6d69bbc2",
+    "adapters\\r5_benchmark.py": "e61981b422dd3518060eb16c47a76aa3c0ffb267989dc54fc937b9ffc3de932e",
+    "adapters\\r5_specs.py": "c9514b77293fe79b6192dd4b2c6886a7563c82398521c0f115b35e487dae48ef",
+    "adapters\\timed_budget.py": "e2040711e63d0efdb303c85e7f043b03a4b51f2d606e97c5977ea90d3c37be08",
+    "scripts\\prepare_pi_structure.py": "01d7833e5b69d2b92e3c37b40182270763bb4bd569ce68fccb6145a537d7de59",
+    "scripts\\prepare_pi_uniform.py": "010799ffe18abb2b819ffb1c9a28bc0c5cc19509b47f62c386abdb19e3147cc0",
+    "scripts\\train_pi05.py": "b23f3966cf7c93a69f48968dcc460dc43ec924d070e872190e121e16751b21f2",
+    "scripts\\train_pi05_adaptive.py": "187d92fad330b568a9f3d50d3811e63d6e73bf86cc185f04364400e25c022fa2",
+    "code\\openpi\\scripts\\train.py": "184193aeccb33a5d350630b732c8a5198f19549932c37bab38870a5dce8580e5",
+    "code\\openpi\\src\\openpi\\models\\pi0.py": "7dcfe63f16cec6e27289de351a0f43fbea713c7c4e77fb89348a3a80ebc54aaf",
+    "code\\openpi\\src\\openpi\\policies\\policy.py": "43a9e3b340280d78cf4768fa1c6b96accd5b57d33c55d791a83bcb91254a52dd",
+    "code\\openpi\\src\\openpi\\training\\config.py": "2fcc9b00de1ee9451ad328e73f4fa6974cd052284a9b0e86412bf8486742caae",
+    "evaluation\\pi05\\pi05_S_seed42_20min_FORMAL\\scripts\\eval_worker.py": "b5a2570a168245070a04c494feb77f712e55598a918c4e0dc6f640b9a6508d22",
+    "evaluation\\pi05\\pi05_S_seed42_20min_FORMAL\\scripts\\fixed_input_gate.py": "7ca5f09ce578969ab6397dad12503eac497f8f0dc1982d3f4f34990de77ce589",
+    "evaluation\\pi05\\pi05_S_seed42_20min_FORMAL\\scripts\\model_server.py": "b643644b570ceecdc1402650cfefbbe7399dd7a532b0d32864390feed4c54e4d"
+  },
+  "changes": [
+    "Removed other models and private deployment paths.",
+    "Run locations now supplied explicitly.",
+    "S2 uses public numeric-parity-tested SMA sampler; probe tickets now include window IDs.",
+    "Upstream model pinned; only optional real7 residual hook is applied.",
+    "Portable evaluation controller replaces allocation-specific orchestration, retaining benchmark and per-session inference."
+  ],
+  "validation": "CPU contracts and source tests; portable GPU end-to-end run not performed"
+}

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sma-adaptation"
-version = "0.1.0"
+version = "0.2.0"
 description = "Structural Manifold Adaptation for Rapid VLA Fine-Tuning"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,6 +12,9 @@ license = {text = "MIT"}
 authors = [{name = "SMA contributors"}]
 dependencies = ["numpy>=1.24,<3"]
 keywords = ["robotics", "vla", "sampling", "fine-tuning", "manifold"]
+
+[project.optional-dependencies]
+test = ["h5py>=3.11"]
 
 [project.urls]
 Repository = "https://github.com/diggerslab/Structural-Manifold-Adaptation"

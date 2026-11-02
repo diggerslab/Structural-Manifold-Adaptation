@@ -1,0 +1,17 @@
+{
+  "openpi": {
+    "url": "https://github.com/Physical-Intelligence/openpi",
+    "commit": "15a9616a00943ada6c20a0f158e3adb39df2ccac",
+    "license": "Apache-2.0"
+  },
+  "harness": {
+    "url": "https://github.com/allenai/vla-evaluation-harness",
+    "commit": "4aeb4369640e8019d46af9534ce9b957e486ad38",
+    "license": "Apache-2.0"
+  },
+  "benchmark": {
+    "name": "LIBERO paired 3x10 custom environment",
+    "included": false,
+    "requires": "Compatible LIBERO environment with regenerate_obs_from_state, paired XML/demo HDF5, BDDL assets and fixed state manifests"
+  }
+}

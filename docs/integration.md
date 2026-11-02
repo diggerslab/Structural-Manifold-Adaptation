@@ -21,7 +21,8 @@ this order. The graph accepts other D; the reference π0.5 setup uses64.
 
 ## Frozen feature recipe for π0.5
 
-This release supplies the array API, not a vendored model implementation. The
+The core supplies the array API; the [Pi0.5 integration](../integrations/pi05/README.md)
+supplies a pinned upstream model setup and concrete feature/loss adapters. The
 research recipe extracts frozen initial-policy prefix embeddings with evaluation
 preprocessing. Separately take masked means of image and language tokens, project
 each to32 dimensions using a fixed Gaussian projection, and concatenate them.
@@ -86,5 +87,6 @@ wall-time definition and evaluation protocol for uniform and SMA arms. The
 preparation, model loading/compilation, actual training, final saving and evaluation
 costs. Report negative results and model-specific differences as well as gains.
 
-No simulator or model is executed by the default tests. Full π0.5 training and
-3×10 robot evaluation require your existing licensed policy and benchmark stack.
+No simulator or model is executed by the default tests. The Pi0.5 integration
+includes ordinary/SMA training and evaluation code. Running it requires the
+separately installed model dependencies, weights, data and benchmark assets.

@@ -29,11 +29,18 @@ flowchart LR
 - The S2 feasible coverage target, bounded residual feedback and task caps.
 - Exact 50/50 global batch allocation, sampling tickets, and JSON checkpoint state.
 - A runnable CPU example, a native-trainer callback example, and reference tests.
+- [Pi0.5 integration](integrations/pi05/README.md): pinned model setup, ordinary
+  fine-tuning, SMA fine-tuning, native policy serving and paired evaluation code.
 
-This is a **mechanism release**, not a complete VLA training stack. Model weights,
-robot datasets, simulator environments, and model-specific feature/loss adapters
-are not bundled. The CPU example uses synthetic data and is not a performance
-benchmark. SMA is a training method, not a new VLA backbone.
+The lightweight core runs independently of model libraries. The Pi0.5 integration
+adds actual model-specific feature/loss adapters and training/evaluation entry
+points. Model weights, robot datasets and custom simulator assets are separate
+inputs. The CPU example uses synthetic data and is not a performance benchmark.
+SMA is a training method, not a new VLA backbone.
+
+**S2** is the internal structural-sampler revision used in our experiments, not a
+formal acronym. It corrects the coverage target to include the mandatory uniform
+half of each batch. The public name is **SMA**.
 
 ## Quick start
 
@@ -42,7 +49,7 @@ Python 3.10+ and NumPy are sufficient; no GPU or model download is needed.
 ```bash
 git clone https://github.com/diggerslab/Structural-Manifold-Adaptation.git
 cd Structural-Manifold-Adaptation
-python -m pip install -e .
+python -m pip install -e '.[test]'
 python -m sma.demo --output demo-output
 python -m unittest discover -s tests -v
 ```

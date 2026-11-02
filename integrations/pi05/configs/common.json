@@ -1,0 +1,26 @@
+{
+  "model": "pi05",
+  "source_commit": "15a9616a00943ada6c20a0f158e3adb39df2ccac",
+  "official_source": "gs://openpi-assets/checkpoints/pi05_libero/",
+  "G": 64,
+  "seed": 42,
+  "data_seed": 42,
+  "chunk": 10,
+  "replan": 10,
+  "denoising_steps": 10,
+  "arm": "S",
+  "initialization": "ORIGINAL_OFFICIAL_C0",
+  "peak_lr": 2.5e-05,
+  "save_reserve_seconds": 65,
+  "save_seconds": [
+    300,
+    600,
+    900,
+    1200
+  ],
+  "maximum_T_fit": 1200,
+  "warmup_seconds": 30,
+  "full_parameter_update": true,
+  "selected_uniform_recipe": "U_B",
+  "method_version": 2
+}

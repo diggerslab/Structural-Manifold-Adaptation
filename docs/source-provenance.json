@@ -11,5 +11,5 @@
     "Added explicit input checks and dataset-bound checkpoint identity.",
     "Graph builder returns arrays rather than writing to experiment directories."
   ],
-  "compatibility": "Numeric equivalence to the ten-task S2 reference is tested with a synthetic golden fixture. Full policy training is not bundled."
+  "compatibility": "Numeric equivalence to the ten-task S2 reference is tested with a synthetic golden fixture. Pi0.5 training/evaluation adapters are now in integrations/pi05; external model dependencies, weights and benchmark assets are separate."
 }
