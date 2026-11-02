@@ -1,6 +1,6 @@
-# Pi0.5: model, baseline fine-tuning, SMA fine-tuning and evaluation
+# Training and Evaluation: π0.5 Reference Implementation
 
-This integration exposes the actual **JAX/OpenPI** training path used by the S2
+This integration exposes the actual **JAX/OpenPI** training path used by the SMA
 research implementation. It is not a new Pi0.5 model. The model implementation is
 the pinned upstream [OpenPI](https://github.com/Physical-Intelligence/openpi/tree/15a9616a00943ada6c20a0f158e3adb39df2ccac),
 loaded from the official `pi05_libero` checkpoint. We publish the data adapters,
@@ -11,15 +11,6 @@ sides. Other model families are deliberately excluded.
 from executed research code, but the portable package has not been retrained or
 evaluated end-to-end on GPUs. Model weights, demonstration HDF5 files and our
 custom paired scene assets are separate inputs, not included in this Git repo.
-
-## What S2 means
-
-S2 was an internal **structural sampler revision**, not a formal acronym or a
-second model. Original S compared consumed coverage to region-balanced `q`.
-S2 corrects that reference to `0.5 * uniform_region + 0.5 * q`, since half of every
-batch is obligatorily uniform. It initializes the coverage counter to the same
-feasible reference. The public method name is **SMA**. The internal `S2` flag is
-retained to trace the published code to experiment records.
 
 ## Same model and loss, two data-selection methods
 

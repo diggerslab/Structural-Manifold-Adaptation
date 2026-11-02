@@ -2,19 +2,20 @@
   <img src="assets/sma-logo.png" alt="SMA: a structural manifold with graph nodes and an adaptive path" width="230">
 </p>
 
-<h1 align="center">SMA: Pi05 Training and Evaluation</h1>
+<h1 align="center">SMA: Structural Manifold Adaptation</h1>
 
 <p align="center">
   <b>Structural Manifold Adaptation · 结构流形驱动的模型快速适配</b><br>
-  <a href="integrations/pi05/README.md">Pi05 Guide</a> ·
+  <a href="integrations/pi05/README.md">Training &amp; Evaluation</a> ·
   <a href="docs/algorithm.md">Method</a> ·
   <a href="README.zh-CN.md">中文</a>
 </p>
 
 SMA accelerates short-budget adaptation by selecting training windows using a
-structural graph, coverage and learning residuals. This repository provides
-**Pi05 model loading, baseline fine-tuning, SMA fine-tuning and paired evaluation**.
-Both methods share the native Pi05 architecture, loss and inference pipeline.
+structural graph, coverage and learning residuals. It is a training-time method
+for VLA models that preserves each policy's native architecture, loss and inference
+pipeline. This repository provides the SMA core and a **π0.5 reference implementation**
+with baseline fine-tuning, SMA fine-tuning and paired evaluation.
 
 ## Method
 
@@ -34,12 +35,13 @@ export ASSETS=/your/large-disk/sma
 python integrations/pi05/setup_openpi.py --destination "$ASSETS/openpi"
 ```
 
-Follow the [Pi05 environment setup](integrations/pi05/README.md#1-install-model-code-in-a-dedicated-directory),
-then run the commands below in that environment. Training uses four GPUs and a
+The commands below use the π0.5 reference implementation. Follow the
+[environment setup](integrations/pi05/README.md#1-install-model-code-in-a-dedicated-directory),
+then run them in that environment. This configuration uses four GPUs and a
 global batch of 64. Supply the official `pi05_libero` weights and your TRAIN data;
 the paired 3×10 evaluation also requires its scene assets and fixed case plan.
 
-## Pi05 Training
+## Training
 
 Prepare the shared training data:
 
@@ -74,7 +76,7 @@ Both runs start from the same official weights, use a peak learning rate of
 **2.5e-5**, and save **5/10/15/20-minute** checkpoints. SMA preparation extracts
 frozen features and builds the graph before training.
 
-## Pi05 Evaluation
+## Evaluation
 
 Start the policy service:
 
