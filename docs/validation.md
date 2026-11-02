@@ -11,6 +11,12 @@ versus partial denominators, and Python syntax across the published integration.
 The optional score hook was diffed against the pinned upstream OpenPI model;
 unrelated historical training configs and logging edits were excluded.
 
+The Linux CI exposed a CPU-dependent graph-weight difference up to 1.63e-9
+from the Windows golden fixture. Graph assignments and topology remain exact;
+floating graph weights use 5e-9 absolute / 1e-8 relative comparison. Sampler
+regression uses the original fixed kernel to isolate allocation math and retains
+its strict tolerances and reference draw sequence. No runtime math was changed.
+
 No new GPU training or simulator rollout was run for this release. This validates
 the CPU contracts and source extraction, not a clean-environment end-to-end
 reproduction or a new success-rate measurement.
