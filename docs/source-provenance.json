@@ -1,0 +1,15 @@
+{
+  "source": "S2 research implementation, core snapshot",
+  "modules": {
+    "structure_sampler.py": "d20e4958541e20d113c806549046e321a529534c699c10a6cf01ebc40e1cd80c",
+    "window_structure.py": "10b4ca471076b1cb0252dfa9703d4356daf3a1647357fdc2b89572faf9425ef8"
+  },
+  "changes": [
+    "Extracted S2 and uniform control; excluded experimental variants.",
+    "Removed machine paths, scheduler, data and model loading.",
+    "Generalized task IDs and even global batch size; ten-task batch64 defaults retained.",
+    "Added explicit input checks and dataset-bound checkpoint identity.",
+    "Graph builder returns arrays rather than writing to experiment directories."
+  ],
+  "compatibility": "Numeric equivalence to the ten-task S2 reference is tested with a synthetic golden fixture. Full policy training is not bundled."
+}
