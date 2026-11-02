@@ -1,132 +1,104 @@
-# Structural Manifold Adaptation (SMA)
+<p align="center">
+  <img src="assets/sma-logo.png" alt="SMA: a structural manifold with graph nodes and an adaptive path" width="230">
+</p>
 
-**Structural Manifold Adaptation for Rapid VLA Fine-Tuning**  
-**结构流形驱动的模型快速适配**
+<h1 align="center">SMA: Pi05 Training and Evaluation</h1>
 
-[中文说明](README.zh-CN.md) · [Algorithm](docs/algorithm.md) · [Integration](docs/integration.md)
+<p align="center">
+  <b>Structural Manifold Adaptation · 结构流形驱动的模型快速适配</b><br>
+  <a href="integrations/pi05/README.md">Pi05 Guide</a> ·
+  <a href="docs/algorithm.md">Method</a> ·
+  <a href="README.zh-CN.md">中文</a>
+</p>
 
-SMA allocates a short fine-tuning budget to training windows using a structural
-graph, recent coverage, and normalized learning residuals. It keeps the native
-policy architecture and training objective unchanged. This repository extracts
-the **S2** mechanism from our research implementation into a small NumPy package.
+SMA accelerates short-budget adaptation by selecting training windows using a
+structural graph, coverage and learning residuals. This repository provides
+**Pi05 model loading, baseline fine-tuning, SMA fine-tuning and paired evaluation**.
+Both methods share the native Pi05 architecture, loss and inference pipeline.
 
-```mermaid
-flowchart LR
-    A[TRAIN demonstrations] --> B[Frozen features + state + expert actions]
-    B --> C[Within-task structural graph]
-    C --> D[Coverage-aware priority]
-    E[Detached training residuals] --> D
-    D --> F[Half uniform + half priority]
-    F --> G[Native VLA update]
-    G --> E
-```
+## Method
 
-## What is included
+**Visual-language features + robot state + expert actions → structural graph → adaptive training batches.**
 
-- Four-block structural distance: frozen visual-language features, end-effector
-  geometry, gripper descriptors, and valid expert action chunks.
-- Task-local, gripper-phase-compatible regions and a diffusion kernel.
-- The S2 feasible coverage target, bounded residual feedback and task caps.
-- Exact 50/50 global batch allocation, sampling tickets, and JSON checkpoint state.
-- A runnable CPU example, a native-trainer callback example, and reference tests.
-- [Pi0.5 integration](integrations/pi05/README.md): pinned model setup, ordinary
-  fine-tuning, SMA fine-tuning, native policy serving and paired evaluation code.
+Each SMA batch contains 50% uniform samples and 50% structure-prioritized samples.
+Priorities combine regional coverage with residual feedback from training.
 
-The lightweight core runs independently of model libraries. The Pi0.5 integration
-adds actual model-specific feature/loss adapters and training/evaluation entry
-points. Model weights, robot datasets and custom simulator assets are separate
-inputs. The CPU example uses synthetic data and is not a performance benchmark.
-SMA is a training method, not a new VLA backbone.
-
-**S2** is the internal structural-sampler revision used in our experiments, not a
-formal acronym. It corrects the coverage target to include the mandatory uniform
-half of each batch. The public name is **SMA**.
-
-## Quick start
-
-Python 3.10+ and NumPy are sufficient; no GPU or model download is needed.
+## Setup
 
 ```bash
 git clone https://github.com/diggerslab/Structural-Manifold-Adaptation.git
 cd Structural-Manifold-Adaptation
-python -m pip install -e '.[test]'
-python -m sma.demo --output demo-output
-python -m unittest discover -s tests -v
+
+# Use a dedicated directory for the pinned OpenPI model code.
+export ASSETS=/your/large-disk/sma
+python integrations/pi05/setup_openpi.py --destination "$ASSETS/openpi"
 ```
 
-The demo builds a graph from 390 synthetic windows, runs eight allocation updates,
-and checks exact next-draw restoration after a JSON checkpoint round trip. Outputs
-include `summary.json` and `sampler-state.json`.
+Follow the [Pi05 environment setup](integrations/pi05/README.md#1-install-model-code-in-a-dedicated-directory),
+then run the commands below in that environment. Training uses four GPUs and a
+global batch of 64. Supply the official `pi05_libero` weights and your TRAIN data;
+the paired 3×10 evaluation also requires its scene assets and fixed case plan.
 
-## Plug into a trainer
+## Pi05 Training
 
-```python
-from sma import SMASampler, build_graph
+Prepare the shared training data:
 
-# All arrays and frozen features come from TRAIN only.
-graph, report = build_graph(arrays, frozen_features)
-# Evaluate the frozen initial model on the representative TRAIN windows.
-initial_loss = score_initial_model(graph["representative_window_ids"])
-
-sampler = SMASampler(
-    episodes, graph["windows"], graph["regions"], graph["region_tasks"],
-    graph["K"], initial_loss,
-    priority_eligible=graph["priority_eligible"],
-    global_batch_size=64,
-)
-
-ticket = sampler.draw()  # 32 uniform + 32 priority, then shuffled
-batch = load_windows(ticket["episode_start"])
-scores, valid_counts = native_train_step(batch)  # original objective, detached scores
-sampler.observe(ticket, scores, valid_counts, fit_seconds=elapsed_seconds)
-sampler.update_sampler(fit_seconds=elapsed_seconds)
+```bash
+python integrations/pi05/prepare_data.py \
+  --episodes "$ASSETS/data/episodes.json" --output "$ASSETS/prepared"
 ```
 
-The named loader/trainer callbacks above belong to your application. A complete
-callback example is in [`examples/minimal_training_loop.py`](examples/minimal_training_loop.py).
-For multiple GPUs, draw **once globally**, shard the ticket, gather scores in
-ticket order, and update the sampler once. Do not run independent samplers on
-each rank. The integration guide describes score normalization, feature
-extraction, and prefetch-aware recovery.
+**Baseline fine-tuning**
 
-## Why structure matters
+```bash
+python integrations/pi05/run.py init --method baseline \
+  --run "$ASSETS/runs/baseline" --openpi "$ASSETS/openpi" \
+  --checkpoint "$ASSETS/pi05_libero" --data "$ASSETS/prepared"
+CUDA_VISIBLE_DEVICES=0,1,2,3 python integrations/pi05/run.py train \
+  --run "$ASSETS/runs/baseline"
+```
 
-Frames that look alike can require different actions. SMA's distance uses state
-and expert action information as well as appearance, and disallows graph edges
-between different tasks or incompatible gripper phases. Coverage is measured
-on this graph rather than by raw frame counts alone. Half the batch remains
-uniform to preserve coverage while the other half adapts its priorities.
+**SMA fine-tuning**
 
-“Manifold” denotes a **discrete structural approximation**. The method does not
-recover a physical manifold, optimize a Wasserstein metric, add a representation
-alignment loss, or change the policy at inference time. It does not guarantee
-gains for every model or dataset.
+```bash
+python integrations/pi05/run.py init --method sma \
+  --run "$ASSETS/runs/sma" --openpi "$ASSETS/openpi" \
+  --checkpoint "$ASSETS/pi05_libero" --data "$ASSETS/prepared"
+CUDA_VISIBLE_DEVICES=0,1,2,3 python integrations/pi05/run.py prepare \
+  --run "$ASSETS/runs/sma"
+CUDA_VISIBLE_DEVICES=0,1,2,3 python integrations/pi05/run.py train \
+  --run "$ASSETS/runs/sma"
+```
 
-## Reproducibility and scope
+Both runs start from the same official weights, use a peak learning rate of
+**2.5e-5**, and save **5/10/15/20-minute** checkpoints. SMA preparation extracts
+frozen features and builds the graph before training.
 
-The reference setting is ten tasks, global batch 64, and a 10-step 7D action
-chunk. The portable sampler also accepts other integer task IDs and positive
-even batch sizes. The metric currently uses an 8D state schema; adapt that schema
-explicitly for another embodiment.
+## Pi05 Evaluation
 
-Tests compare graph arrays, eight rounds of sampled indices and probabilities,
-and residual/coverage updates against outputs generated by the original S2
-functions on synthetic data. They also test phase barriers, padding, quaternion
-sign invariance, bounded allocation, stale-score reset and checkpoint recovery.
-See [provenance](docs/source-provenance.json). Numerical core parity does not
-constitute a new end-to-end policy reproduction.
+Start the policy service:
 
-## Cost
+```bash
+export SMA_RUN_DIR="$ASSETS/runs/sma"
+CUDA_VISIBLE_DEVICES=0 python integrations/pi05/scripts/serve_pi05.py \
+  --checkpoint "$SMA_RUN_DIR/output/model_10min" --port 8000
+```
 
-One-time preparation encodes TRAIN observations with a frozen initial model,
-constructs a small graph, and evaluates representative-window scores. Online
-allocation runs on CPU and consumes detached scores from the native forward pass.
-Report this preparation cost separately from training and evaluation. No new
-inference module is introduced. Graph construction uses a dense candidate-distance
-matrix within each task and dense eigendecomposition across regions; it is intended
-for modest adaptation datasets rather than unbounded web-scale inputs.
+In a second terminal, run concurrent simulator windows:
 
-## License
+```bash
+export SIM_PYTHON=/path/to/simulator-env/bin/python
+python integrations/pi05/evaluate.py \
+  --assets "$ASSETS/eval-assets" --plan "$ASSETS/eval-assets/EVAL_PLAN.jsonl" \
+  --url ws://127.0.0.1:8000 --checkpoint-id YOUR_CHECKPOINT_DIGEST \
+  --sim-python "$SIM_PYTHON" --workers 6 --output "$ASSETS/eval/sma-10min"
+```
 
-The code in this repository is released under the [MIT License](LICENSE).
-External models, frameworks, and datasets retain their respective licenses.
+Evaluate the initial, baseline and SMA checkpoints with the same case plan and
+normalization, using a separate output directory for each. `SUMMARY.json`
+contains overall and per-scene/task success rates. Policy inference is native
+B1; simulation sessions run concurrently.
+
+[Data format and full commands](integrations/pi05/README.md) ·
+[Evaluation asset format](integrations/pi05/evaluation-assets.md) ·
+[Validation](docs/validation.md) · [MIT License](LICENSE)
